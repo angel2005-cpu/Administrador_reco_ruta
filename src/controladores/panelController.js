@@ -9,6 +9,8 @@ let canalIncidencias = null;
 let mapaHistorial = null;
 let polylineHistorial = null;
 let vehiculoHistorialActual = null;
+const menuInspecciones = document.getElementById('menu-inspecciones');
+const panelInspecciones = document.getElementById('panel-inspecciones');
 
 const CENTRO_TANTOYUCA = [21.3510, -98.2285];
 
@@ -21,13 +23,14 @@ const iconoCamion = L.divIcon({
 });
 
 // Router simple de vistas
-const vistas = ['dashboard', 'choferes', 'camiones', 'reportes', 'incidencias'];
+const vistas = ['dashboard', 'choferes', 'camiones', 'reportes', 'incidencias', 'inspecciones'];
 const titulos = {
     dashboard: 'Monitoreo en Tiempo Real',
     choferes: 'Gestionar Choferes',
     camiones: 'Camiones',
     reportes: 'Reportes Ciudadanos',
     incidencias: 'Incidencias de Choferes',
+    inspecciones: 'Inspecciones Vehiculares',
 };
 
 function mostrarVista(nombreVista) {
@@ -59,6 +62,8 @@ function mostrarVista(nombreVista) {
         cargarReportes();
     } else if (nombreVista === 'incidencias') {
         cargarIncidencias();
+    } else if (nombreVista === 'inspecciones') {
+        cargarInspecciones();
     }
 }
 
@@ -518,6 +523,67 @@ async function cargarIncidencias() {
     }
 }
 
+// INSPECCIONES VEHICULARES
+window.cargarInspecciones = async function() {
+    const tbody = document.getElementById('lista-inspecciones');
+    tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-gray-400">Cargando inspecciones...</td></tr>';
+    
+    try {
+        const inspecciones = await apiService.obtenerInspecciones();
+        
+        if (inspecciones.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-gray-400">No hay registros de inspección aún.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = inspecciones.map(inspeccion => {
+            // Parsear fecha
+            const fecha = new Date(inspeccion.fecha_hora).toLocaleString('es-MX', {
+                day: '2-digit', month: 'short', year: 'numeric', 
+                hour: '2-digit', minute:'2-digit'
+            });
+            
+            // Colores según el tipo (Salida en verde, Regreso en naranja)
+            const tipoColor = inspeccion.tipo_registro === 'Salida' 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-orange-100 text-orange-800';
+
+            // Manejo de la foto (por si no trae url)
+            const btnFoto = inspeccion.foto_tablero 
+                ? `<a href="${inspeccion.foto_tablero}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
+                     <i class="fa-solid fa-camera mr-1"></i> Ver Tablero
+                   </a>`
+                : `<span class="text-gray-400">Sin foto</span>`;
+
+            // Nombres del chofer y vehículo (usando la relación)
+            const placa = inspeccion.vehiculos?.placa || 'N/A';
+            const chofer = inspeccion.choferes?.nombre || 'Desconocido';
+
+            return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 font-medium text-gray-800 whitespace-nowrap">${fecha}</td>
+                    <td class="px-6 py-4">
+                        <span class="block font-bold text-gray-800">${placa}</span>
+                        <span class="block text-xs text-gray-500 mt-1"><i class="fa-solid fa-user-tie mr-1"></i>${chofer}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg ${tipoColor}">${inspeccion.tipo_registro}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="block text-gray-700"><i class="fa-solid fa-gas-pump mr-2 text-gray-400"></i>${inspeccion.nivel_combustible}</span>
+                        <span class="block text-xs mt-1 text-gray-500"><i class="fa-solid fa-wrench mr-2 text-gray-400"></i>${inspeccion.estado_mecanico}</span>
+                    </td>
+                    <td class="px-6 py-4 font-mono font-bold text-gray-700">${inspeccion.kilometraje} KM</td>
+                    <td class="px-6 py-4 text-center">${btnFoto}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error("Error cargando inspecciones:", error);
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-6 text-center text-red-500">Error al cargar datos: ${error.message}</td></tr>`;
+    }
+};
+
 // EDITAR CHOFER
 async function abrirModalEditar(datos) {
     document.getElementById('editChoferIdUsuario').value = datos.id;
@@ -705,4 +771,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Vista inicial
     mostrarVista('dashboard');
+});
+
+menuInspecciones.addEventListener('click', (e) => {
+    e.preventDefault();
+    mostrarPanel(panelInspecciones, menuInspecciones);
+    window.cargarInspecciones(); // Carga los datos cuando entramos a la sección
 });

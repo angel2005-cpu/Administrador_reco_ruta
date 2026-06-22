@@ -230,5 +230,34 @@ export const apiService = {
             .eq('id_usuario', idUsuario);
 
         if (error) throw new Error('Error al actualizar el chofer: ' + error.message);
-    }
+    },
+
+    async obtenerInspecciones() {
+        try {
+            // Hacemos un select anidado para traer el nombre del chofer y la placa del vehículo
+            const { data, error } = await supabase
+                .from('inspecciones_vehiculos')
+                .select(`
+                    id_inspeccion,
+                    tipo_registro,
+                    kilometraje,
+                    nivel_combustible,
+                    estado_mecanico,
+                    observaciones,
+                    foto_tablero,
+                    fecha_hora,
+                    vehiculos ( placa ),
+                    choferes ( nombre )
+                `)
+                .order('fecha_hora', { ascending: false });
+
+            if (error) {
+                throw error;
+            }
+            return data;
+        } catch (error) {
+            console.error('Error al obtener el historial de inspecciones:', error.message);
+            return [];
+        }
+    },
 };

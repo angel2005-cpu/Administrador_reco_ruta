@@ -56,6 +56,11 @@
                     <i class="fa-solid fa-triangle-exclamation w-6 text-center"></i>
                     <span>Incidencias</span>
                 </a>
+                <a href="#" data-view="inspecciones" id="menu-inspecciones"
+                    class="nav-link flex items-center space-x-3 text-green-100 hover:bg-green-700 hover:text-white px-4 py-3 rounded-xl font-medium transition">
+                    <i class="fa-solid fa-clipboard-check w-6 text-center"></i>
+                    <span>Inspecciones Vehiculares</span>
+                </a>
             </nav>
         </div>
 
@@ -302,6 +307,39 @@
                     </table>
                 </div>
             </section>
+            <section id="view-incidencias" class="view-section hidden">
+                </section>
+
+            <section id="panel-inspecciones" class="view-section hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Auditoría de Turnos y Vehículos</h2>
+                    <button onclick="window.cargarInspecciones()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition flex items-center cursor-pointer">
+                        <i class="fa-solid fa-rotate-right mr-2"></i> Actualizar
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Fecha y Hora</th>
+                                <th scope="col" class="px-6 py-3">Vehículo / Chofer</th>
+                                <th scope="col" class="px-6 py-3 text-center">Tipo</th>
+                                <th scope="col" class="px-6 py-3">Combustible / Estado</th>
+                                <th scope="col" class="px-6 py-3">Kilometraje</th>
+                                <th scope="col" class="px-6 py-3 text-center">Evidencia Visual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lista-inspecciones" class="divide-y divide-gray-100">
+                            <tr>
+                                <td colspan="6" class="px-6 py-6 text-center text-gray-400">Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
 
         </main>
     </div>
