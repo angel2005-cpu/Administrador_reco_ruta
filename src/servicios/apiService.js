@@ -235,7 +235,7 @@ export const apiService = {
     async obtenerInspecciones() {
         try {
             // Hacemos un select anidado para traer el nombre del chofer y la placa del vehículo
-            const { data, error } = await supabase
+            const { data, error } = await _supabase
                 .from('inspecciones_vehiculos')
                 .select(`
                     id_inspeccion,

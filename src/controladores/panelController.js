@@ -9,8 +9,6 @@ let canalIncidencias = null;
 let mapaHistorial = null;
 let polylineHistorial = null;
 let vehiculoHistorialActual = null;
-const menuInspecciones = document.getElementById('menu-inspecciones');
-const panelInspecciones = document.getElementById('panel-inspecciones');
 
 const CENTRO_TANTOYUCA = [21.3510, -98.2285];
 
@@ -771,10 +769,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Vista inicial
     mostrarVista('dashboard');
-});
-
-menuInspecciones.addEventListener('click', (e) => {
-    e.preventDefault();
-    mostrarPanel(panelInspecciones, menuInspecciones);
-    window.cargarInspecciones(); // Carga los datos cuando entramos a la sección
 });
