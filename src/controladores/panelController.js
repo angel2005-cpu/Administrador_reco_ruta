@@ -214,8 +214,16 @@ async function manejarSubmitChofer(e) {
     }
 
     try {
-        // Hasheamos la contraseña en el navegador con bcrypt (igual que el resto del sistema)
-        const contrasenaHash = bcrypt.hashSync(contrasena, 10);
+        const bcryptObj =
+            (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt)
+                ? dcodeIO.bcrypt
+                : window.bcrypt;
+
+        if (!bcryptObj) {
+            throw new Error('Error interno: Encriptación no disponible.');
+        }
+
+        const contrasenaHash = bcryptObj.hashSync(contrasena, 10);
 
         await apiService.crearChofer({
             usuario,
@@ -522,13 +530,13 @@ async function cargarIncidencias() {
 }
 
 // INSPECCIONES VEHICULARES
-window.cargarInspecciones = async function() {
+window.cargarInspecciones = async function () {
     const tbody = document.getElementById('lista-inspecciones');
     tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-gray-400">Cargando inspecciones...</td></tr>';
-    
+
     try {
         const inspecciones = await apiService.obtenerInspecciones();
-        
+
         if (inspecciones.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-6 text-center text-gray-400">No hay registros de inspección aún.</td></tr>';
             return;
@@ -537,17 +545,17 @@ window.cargarInspecciones = async function() {
         tbody.innerHTML = inspecciones.map(inspeccion => {
             // Parsear fecha
             const fecha = new Date(inspeccion.fecha_hora).toLocaleString('es-MX', {
-                day: '2-digit', month: 'short', year: 'numeric', 
-                hour: '2-digit', minute:'2-digit'
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
             });
-            
+
             // Colores según el tipo (Salida en verde, Regreso en naranja)
-            const tipoColor = inspeccion.tipo_registro === 'Salida' 
-                ? 'bg-green-100 text-green-800' 
+            const tipoColor = inspeccion.tipo_registro === 'Salida'
+                ? 'bg-green-100 text-green-800'
                 : 'bg-orange-100 text-orange-800';
 
             // Manejo de la foto (por si no trae url)
-            const btnFoto = inspeccion.foto_tablero 
+            const btnFoto = inspeccion.foto_tablero
                 ? `<a href="${inspeccion.foto_tablero}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center">
                      <i class="fa-solid fa-camera mr-1"></i> Ver Tablero
                    </a>`
